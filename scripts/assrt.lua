@@ -1221,12 +1221,24 @@ local function encodeURIComponent(s)
   return s:gsub("[^%w%-_%.%!%~%*%'%(%)]", char_to_pchar)
 end
 
+local function extract_movie_info(filename)
+  -- 匹配电影名称和年份
+  local name, year = string.match(filename, "(.-)%.(%d%d%d%d)%.")
+  if name and year then
+      -- 将点替换为空格来改进电影名称的可读性
+      name = name:gsub("%.", " ")
+  end
+  name = name .. " " .. year
+  return name, year
+end
+
 function ASSRT:searchSubtitle(no_muxer_only)
   self:showOsdInfo("正在搜索字幕...", 2)
   local fpath = mp.get_property("path", " ")
   local _, fname = utils.split_path(fpath)
   local try_args = {"is_file", "no_muxer"}
   fname = fname:gsub("[%(%)~]", "")
+  fname = extract_movie_info(fname)
   local sublist
   local already_try_no_muxer = false
   for i = (no_muxer_only and 2 or 1), 2 do
